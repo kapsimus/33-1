@@ -1,22 +1,58 @@
 #include <iostream>
 #include "Stores.h"
+#include "MyExceptions.h"
 
 int main() {
     Stores store;
     std::string article;
-    std::string count;
+    int count;
     do {
         std::cout << "Enter article: ";
         std::cin >> article;
-        std::cout << "Enter count: ";
-        std::cin >> count;
-        try {
-            store.add(article, std::stoi(count));
-        } catch (std::exception err) {
-            std::cerr << "Exception: " << err.what() << std::endl;
-
+        if (article != "end") {
+            std::cout << "Enter count: ";
+            std::cin >> count;
+            if (std::cin.fail()) {
+                count = 0;
+                std::cin.clear();
+            }
+            try {
+                store.addToStore(article, count);
+            } catch (const InvalidArticleException &x) {
+                std::cerr << "Exception: " << x.what() << std::endl;
+            } catch (const InvalidCountException &x) {
+                std::cerr << "Exception: " << x.what() << std::endl;
+            }
         }
     } while (article != "end");
-    std::cout << "Hello, World!" << std::endl;
+
+    store.addBasket();
+    do {
+        std::string op;
+        std::cout << "Enter operation (add/remove/end): ";
+        std::cin >> op;
+        if (op != "end") {
+            std::cout << "Enter article: ";
+            std::cin >> article;
+            std::cout << "Enter count: ";
+            std::cin >> count;
+            if (std::cin.fail()) {
+                count = 0;
+                std::cin.clear();
+            }
+            try {
+                if (op == "add") {
+                    store.addToBasket(article, count);
+                } else if (op == "remove") {
+                    store.removeFromBasket(article, count);
+                }
+            } catch (const InvalidArticleException &x) {
+                std::cerr << "Exception: " << x.what() << std::endl;
+            } catch (const InvalidCountException &x) {
+                std::cerr << "Exception: " << x.what() << std::endl;
+            }
+        }
+    } while (article != "end");
+
     return 0;
 }
